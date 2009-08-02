@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cp .emacs ~
+cp -rf .emacs.d/lisp ~/.emacs.d
+
+cp .profile ~
+ln -sf $HOME/.profile $HOME/.bashrc
+
+cp .subversion/config ~/.subversion/
+
+cp .gitconfig ~
+cp .gitignore ~
+git config --global core.excludesfile ~/.gitignore

@@ -1,0 +1,28 @@
+[user]
+	name = Jared Flatow
+	email = jflatow@gmail.com
+
+[color]
+	branch = auto
+	diff = auto
+	status = auto
+
+[color "branch"]
+	current = blue reverse
+	local = blue
+	remote = green
+
+[color "diff"]
+	commit = blue
+	meta = blue bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+
+[color "status"]
+	added = blue
+	changed = green
+	untracked = cyan
+
+[core]
+	excludesfile = # this should get overwrriten by install!

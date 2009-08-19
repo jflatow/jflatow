@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cp .emacs ~
 cp -rf .emacs.d/lisp ~/.emacs.d

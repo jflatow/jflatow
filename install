@@ -1,5 +1,10 @@
 #!/bin/bash
 
+cd `dirname $0`
+
+mkdir -p ~/.bin
+cp -rf .bin ~
+
 cp .emacs ~
 mkdir -p ~/.emacs.d/lisp
 cp -rf .emacs.d/lisp ~/.emacs.d
@@ -7,6 +12,7 @@ cp -rf .emacs.d/lisp ~/.emacs.d
 cp .profile ~
 ln -sf $HOME/.profile $HOME/.bashrc
 
+mkdir -p ~/.subversion
 cp .subversion/config ~/.subversion/
 
 cp .gitconfig ~

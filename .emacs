@@ -17,6 +17,9 @@
 ;; Always show those ugly carriage returns
 (setq inhibit-eol-conversion t)
 
+;; Always show that ugly trailing whitespace
+(setq-default show-trailing-whitespace t)
+
 ;; No tabs
 (setq-default indent-tabs-mode nil)
 
@@ -119,3 +122,10 @@
 
 ;; erlang mode
 (require 'erlang-start)
+
+;; ECMAScript mode
+(require 'ecmascript-mode)
+(setq auto-mode-alist
+      (append '(("\\.as$" . ecmascript-mode)
+                ("\\.js$" . ecmascript-mode))
+              auto-mode-alist))

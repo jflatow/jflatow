@@ -1,6 +1,8 @@
 # force system-wide profile (for non-interactive logins)
 . /etc/profile
 
+export PATH=~/.bin:$PATH
+
 export CLICOLOR=cons25
 export EDITOR=emacs
 export FIGNORE=.svn

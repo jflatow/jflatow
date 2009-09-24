@@ -26,3 +26,6 @@
 
 [core]
 	excludesfile = # this should get overwrriten by install!
+
+[alias]
+        co = checkout

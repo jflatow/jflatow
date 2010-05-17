@@ -13,7 +13,7 @@ def expand(field):
     if len(interval) > 1:
         return range(interval[0] - 1, interval[1])
     return [int(field) - 1]
-    
+
 def main():
     parser = optparse.OptionParser()
     parser.add_option('-f', '--fields',

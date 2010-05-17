@@ -14,6 +14,9 @@
 (delete-selection-mode nil)
 (show-paren-mode t)
 
+;; Show column numbers
+(setq column-number-mode t)
+
 ;; Always show those ugly carriage returns
 (setq inhibit-eol-conversion t)
 
@@ -37,7 +40,7 @@
   "Start a python shell using the given command."
   (interactive "sPython command: ")
   (when argprompt
-    (custom-set-variables 
+    (custom-set-variables
      '(py-which-shell argprompt)
      '(py-python-command argprompt)))
   (py-shell))
@@ -91,21 +94,21 @@
 (add-hook 'n3-mode-hook 'turn-on-font-lock)
 
 (setq auto-mode-alist
-      (append '(("\\.n3" . n3-mode) 
+      (append '(("\\.n3" . n3-mode)
                 ("\\.owl" . n3-mode)) auto-mode-alist))
 
 ;; YAML Mode
 (autoload 'yaml-mode "yaml-mode" "Major mode for YAML files" t)
 
 (setq auto-mode-alist
-      (append '(("\\.yml" . yaml-mode) 
+      (append '(("\\.yml" . yaml-mode)
                 ("\\.yaml" . yaml-mode)) auto-mode-alist))
 
 ;; nav bar
 (require 'nav)
 
 ;; Objective-C style preferences (objc mode is kind of broken)
-(defconst objc-style 
+(defconst objc-style
   '((c-echo-syntactic-information-p . t)
     (c-offsets-alist .
                      ((objc-method-args-cont . c-lineup-ObjC-method-args)

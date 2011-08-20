@@ -29,6 +29,11 @@
 ;; Preferred indentation for switch statements in cc-mode
 (c-set-offset 'case-label '+)
 
+;; bash shell
+(defun bash ()
+  (interactive)
+  (ansi-term "/bin/bash"))
+
 ;; Use a real man's python-mode
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)

@@ -84,6 +84,10 @@
                 ("\\.rest$" . rst-mode))
               auto-mode-alist))
 
+;; CRM mode
+(autoload 'crm114-mode "crm114-mode" "Major mode for CRM files" t)
+(add-to-list 'auto-mode-alist '("\\.crm\\'" . crm114-mode))
+
 ;; CSS Mode
 (require 'css-mode)
 (add-to-list 'auto-mode-alist '("\.css$" . css-mode))
@@ -137,3 +141,8 @@
       (append '(("\\.as$" . ecmascript-mode)
                 ("\\.js$" . ecmascript-mode))
               auto-mode-alist))
+
+;; haskell mode
+(load "haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)

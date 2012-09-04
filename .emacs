@@ -142,6 +142,9 @@
                 ("\\.js$" . ecmascript-mode))
               auto-mode-alist))
 
+;; go mode
+(require 'go-mode-load)
+
 ;; haskell mode
 (load "haskell-site-file")
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)

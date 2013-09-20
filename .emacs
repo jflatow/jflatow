@@ -8,7 +8,6 @@
       (setq load-path (cons my-lisp-dir load-path))
       (normal-top-level-add-subdirs-to-load-path)))
 
-
 ;; Highlight region and overwrite it when I type
 (transient-mark-mode t)
 (delete-selection-mode nil)
@@ -16,6 +15,9 @@
 
 ;; Show column numbers
 (setq column-number-mode t)
+
+;; Lines is lines
+(setq truncate-partial-width-windows t)
 
 ;; Always show those ugly carriage returns
 (setq inhibit-eol-conversion t)

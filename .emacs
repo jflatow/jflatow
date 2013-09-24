@@ -31,6 +31,9 @@
 ;; Preferred indentation for switch statements in cc-mode
 (c-set-offset 'case-label '+)
 
+;; JavaScript indentation
+(setq js-indent-level 2)
+
 ;; bash shell
 (defun bash ()
   (interactive)
@@ -51,31 +54,6 @@
      '(py-which-shell argprompt)
      '(py-python-command argprompt)))
   (py-shell))
-
-;;;;;;;;;;;;;;;
-;; Emacs hints from Georg Brandl (for core Python developers)
-;; highlight XXX style code tags in source files
-(font-lock-add-keywords 'python-mode
-			'(("\\<\\(FIXME\\|HACK\\|XXX\\|TODO\\)" 1 font-lock-warning-face prepend)))
-
-;; good for defeating the whitespace-normalization commit hook
-;(setq-default show-trailing-whitespace t)
-;;;;;;;;;;;;;;;
-
-
-;; Fix Java mode (annotations, indentations)
-(require 'java-mode-indent-annotations)
-(add-hook 'java-mode-hook
-	  'java-mode-indent-annotations-setup)
-
-(defun my-java-mode-hook ()
-  (setq c-basic-offset 2))
-(add-hook 'java-mode-hook 'my-java-mode-hook)
-
-
-;; Use sgml-mode for jsp pages and tag files
-(add-to-list 'auto-mode-alist '("\.jsp$" . sgml-mode))
-(add-to-list 'auto-mode-alist '("\.tag$" . sgml-mode))
 
 ;; ReStructured Text
 (require 'rst)
@@ -136,13 +114,6 @@
 
 ;; erlang mode
 (require 'erlang-start)
-
-;; ECMAScript mode
-(require 'ecmascript-mode)
-(setq auto-mode-alist
-      (append '(("\\.as$" . ecmascript-mode)
-                ("\\.js$" . ecmascript-mode))
-              auto-mode-alist))
 
 ;; go mode
 (require 'go-mode-load)

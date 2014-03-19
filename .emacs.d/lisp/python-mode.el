@@ -1648,6 +1648,7 @@ filter."
          (apply 'make-comint py-which-bufname py-which-shell nil args))
       (apply 'make-comint py-which-bufname py-which-shell nil args))
     (make-local-variable 'comint-prompt-regexp)
+    (setq comint-process-echoes t)
     (setq comint-prompt-regexp (concat py-shell-input-prompt-1-regexp "\\|"
                                        py-shell-input-prompt-2-regexp "\\|"
                                        "^([Pp]db) "))

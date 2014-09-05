@@ -170,7 +170,7 @@
   (interactive "p")
   (if (> arg 0)
       (progn
-	(insert-char last-command-char arg)
+	(insert-char last-command-event arg)
 	(crm114-indent-line)
 	(delete-char (- arg))
 	(self-insert-command arg))))

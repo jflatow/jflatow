@@ -1,12 +1,8 @@
-(setq load-path (cons "~/.emacs.d/lisp" load-path))
 (setq inhibit-splash-screen t)
-
-;; add all the subdirectories to the load path
-(if (fboundp 'normal-top-level-add-subdirs-to-load-path)
-    (let* ((my-lisp-dir "~/.emacs.d/lisp")
-           (default-directory my-lisp-dir))
-      (setq load-path (cons my-lisp-dir load-path))
-      (normal-top-level-add-subdirs-to-load-path)))
+(let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
+  (add-to-list 'load-path default-directory)
+  (normal-top-level-add-subdirs-to-load-path)
+  (byte-recompile-directory default-directory 0))
 
 ;; Highlight region and overwrite it when I type
 (transient-mark-mode t)
@@ -18,6 +14,7 @@
 
 ;; Lines is lines
 (setq truncate-partial-width-windows t)
+(setq mode-require-final-newline nil)
 
 ;; Always show those ugly carriage returns
 (setq inhibit-eol-conversion t)
@@ -34,75 +31,17 @@
 ;; JavaScript indentation
 (setq js-indent-level 2)
 
-;; bash shell
-(defun bash ()
-  (interactive)
-  (ansi-term "/bin/bash"))
-
-;; Use a real man's python-mode
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist (cons '("python" . python-mode)
-				   interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
-(autoload 'py-shell "python-mode" "Python shell." t nil)
-
-(defun py (&optional argprompt)
-  "Start a python shell using the given command."
-  (interactive "sPython command: ")
-  (when argprompt
-    (custom-set-variables
-     '(py-which-shell argprompt)
-     '(py-python-command argprompt)))
-  (py-shell))
-
-;; ReStructured Text
-(require 'rst)
-(setq rst-mode-lazy nil)
-(setq auto-mode-alist
-      (append '(("\\.rst$" . rst-mode)
-                ("\\.txt$" . rst-mode)
-                ("\\.rest$" . rst-mode))
-              auto-mode-alist))
-
-;; CRM mode
-(autoload 'crm114-mode "crm114-mode" "Major mode for CRM files" t)
-(add-to-list 'auto-mode-alist '("\\.crm\\'" . crm114-mode))
-
-;; CSS Mode
-(require 'css-mode)
-(add-to-list 'auto-mode-alist '("\.css$" . css-mode))
+;; CSS prefs
 (setq cssm-indent-level 4)
 (setq cssm-mirror-mode nil)
 (setq cssm-newline-before-closing-bracket t)
 (setq cssm-indent-function #'cssm-c-style-indenter)
 
-;; N3 Mode
-(autoload 'n3-mode "n3-mode" "Major mode for OWL or N3 files" t)
-
-;; Turn on font lock when in n3 mode
-(add-hook 'n3-mode-hook 'turn-on-font-lock)
-
-(setq auto-mode-alist
-      (append '(("\\.n3" . n3-mode)
-                ("\\.owl" . n3-mode)) auto-mode-alist))
-
-;; YAML Mode
-(autoload 'yaml-mode "yaml-mode" "Major mode for YAML files" t)
-
-(setq auto-mode-alist
-      (append '(("\\.yml" . yaml-mode)
-                ("\\.yaml" . yaml-mode)) auto-mode-alist))
-
-;; nav bar
-(require 'nav)
-
 ;; Objective-C style preferences (objc mode is kind of broken)
 (defconst objc-style
   '((c-echo-syntactic-information-p . t)
-    (c-offsets-alist .
-                     ((objc-method-args-cont . c-lineup-ObjC-method-args)
-                      (objc-method-call-cont . c-lineup-ObjC-method-args))
-                     ))
+    (c-offsets-alist . ((objc-method-args-cont . c-lineup-ObjC-method-args)
+                        (objc-method-call-cont . c-lineup-ObjC-method-args))))
   "Objective-C Programming Style")
 
 (defun objc-style-hook ()
@@ -112,13 +51,40 @@
 
 (add-hook 'objc-mode-hook 'objc-style-hook)
 
-;; erlang mode
+;; Bash shell
+(defun bash ()
+  (interactive)
+  (ansi-term "/bin/bash"))
+
+;; Python shell
+(defun py-shell ()
+  (interactive)
+  (run-python "/usr/bin/env python" nil 0))
+(setq python-shell-setup-codes nil)
+
+;; Erlang mode
 (require 'erlang-start)
 
-;; go mode
-(require 'go-mode-load)
+;; jsSlime to remote debug webkit
+(require 'jss)
 
-;; haskell mode
-(load "haskell-site-file")
-(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;; CRM mode
+(autoload 'crm114-mode "crm114-mode" "Major mode for CRM files" t)
+(add-to-list 'auto-mode-alist '("\\.crm\\'" . crm114-mode))
+
+;; N3 mode
+(autoload 'n3-mode "n3-mode" "Major mode for OWL or N3 files" t)
+(add-hook 'n3-mode-hook 'turn-on-font-lock)
+(setq auto-mode-alist
+      (append '(("\\.n3\\'" . n3-mode)
+                ("\\.owl\\'" . n3-mode)) auto-mode-alist))
+
+;; YAML mode
+(autoload 'yaml-mode "yaml-mode" "Major mode for YAML files" t)
+(setq auto-mode-alist
+      (append '(("\\.yml\\'" . yaml-mode)
+                ("\\.yaml\\'" . yaml-mode)) auto-mode-alist))
+
+;; Go mode
+(autoload 'go-mode "go-mode" "Major mode for the Go programming language" t)
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))

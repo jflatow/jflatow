@@ -1,8 +1,20 @@
-(setq inhibit-splash-screen t)
-(let ((default-directory (expand-file-name "~/.emacs.d/lisp")))
+;; Local lisp
+(setq my-lisp-dir "~/.emacs.d/lisp")
+(let ((default-directory my-lisp-dir))
   (add-to-list 'load-path default-directory)
   (normal-top-level-add-subdirs-to-load-path)
   (byte-recompile-directory default-directory 0))
+
+;; Org boostrap
+(setq my-org-config "~/Dropbox/.org.el")
+(when (file-exists-p my-org-config)
+  (load-file my-org-config)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c l") 'org-store-link))
+
+;; No splash
+(setq inhibit-splash-screen t)
 
 ;; Highlight region and overwrite it when I type
 (transient-mark-mode t)
@@ -64,9 +76,6 @@
 
 ;; Erlang mode
 (require 'erlang-start)
-
-;; jsSlime to remote debug webkit
-(require 'jss)
 
 ;; CRM mode
 (autoload 'crm114-mode "crm114-mode" "Major mode for CRM files" t)

@@ -1,6 +1,0 @@
-[submodule ".emacs.d/lisp/emacs-websocket"]
-	path = .emacs.d/lisp/emacs-websocket
-	url = https://github.com/ahyatt/emacs-websocket.git
-[submodule ".emacs.d/lisp/jss"]
-	path = .emacs.d/lisp/jss
-	url = https://github.com/segv/jss.git

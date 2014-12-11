@@ -6,9 +6,17 @@
   (byte-recompile-directory default-directory 0))
 
 ;; Org boostrap
-(setq my-org-config "~/Dropbox/.org.el")
-(when (file-exists-p my-org-config)
-  (load-file my-org-config)
+(setq org-startup-folded t)
+(setq org-startup-indented t)
+(setq org-hide-leading-stars t)
+(setq org-return-follows-link t)
+(setq org-catch-invisible-edits 'show-and-error)
+(setq org-capture-templates
+      '(("t" "todo" entry (file org-default-notes-file)
+         "* TODO %?\n" :clock-in t :clock-resume t)))
+(setq org-default-notes-file "~/Dropbox/Notes/TODO.org")
+(setq org-agenda-files (list org-default-notes-file))
+(when (file-exists-p org-default-notes-file)
   (global-set-key (kbd "C-c a") 'org-agenda)
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c l") 'org-store-link))

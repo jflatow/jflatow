@@ -5,6 +5,10 @@
   (normal-top-level-add-subdirs-to-load-path)
   (byte-recompile-directory default-directory 0))
 
+;; Package archives
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+
 ;; Org boostrap
 (setq org-startup-folded t)
 (setq org-startup-indented t)

@@ -55,6 +55,11 @@
 ;; JavaScript indentation
 (setq js-indent-level 2)
 
+;; JS2
+(setq js2-indent-level 2)
+(setq js2-strict-missing-semi-warning nil)
+(setq js2-strict-inconsistent-return-warning nil)
+
 ;; CSS prefs
 (setq cssm-indent-level 4)
 (setq cssm-mirror-mode nil)

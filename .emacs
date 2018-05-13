@@ -6,8 +6,9 @@
   (byte-recompile-directory default-directory 0))
 
 ;; Package archives
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+(setq package-archives
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+        ("melpa" . "http://melpa.milkbox.net/packages/")))
 
 ;; Org boostrap
 (setq org-startup-folded t)
@@ -55,30 +56,21 @@
 ;; JavaScript indentation
 (setq js-indent-level 2)
 
-;; JS2
+;; JS2 mode prefs
 (setq js2-indent-level 2)
 (setq js2-strict-missing-semi-warning nil)
 (setq js2-strict-inconsistent-return-warning nil)
 
-;; CSS prefs
+;; CSS mode prefs
 (setq cssm-indent-level 4)
 (setq cssm-mirror-mode nil)
 (setq cssm-newline-before-closing-bracket t)
 (setq cssm-indent-function #'cssm-c-style-indenter)
 
-;; Objective-C style preferences (objc mode is kind of broken)
-(defconst objc-style
-  '((c-echo-syntactic-information-p . t)
-    (c-offsets-alist . ((objc-method-args-cont . c-lineup-ObjC-method-args)
-                        (objc-method-call-cont . c-lineup-ObjC-method-args))))
-  "Objective-C Programming Style")
-
-(defun objc-style-hook ()
-  (c-add-style "objc" objc-style t)
-  (c-set-style "objc")
-  (setq tab-width 4))
-
-(add-hook 'objc-mode-hook 'objc-style-hook)
+;; Skewer mode prefs
+(add-hook 'js2-mode-hook 'skewer-mode)
+(add-hook 'css-mode-hook 'skewer-css-mode)
+(add-hook 'html-mode-hook 'skewer-html-mode)
 
 ;; Bash shell
 (defun bash ()
@@ -89,28 +81,8 @@
 (defun py-shell ()
   (interactive)
   (run-python "/usr/bin/env python" nil 0))
-(setq python-shell-setup-codes nil)
 
-;; Erlang mode
-(require 'erlang-start)
-
-;; CRM mode
-(autoload 'crm114-mode "crm114-mode" "Major mode for CRM files" t)
-(add-to-list 'auto-mode-alist '("\\.crm\\'" . crm114-mode))
-
-;; N3 mode
-(autoload 'n3-mode "n3-mode" "Major mode for OWL or N3 files" t)
-(add-hook 'n3-mode-hook 'turn-on-font-lock)
-(setq auto-mode-alist
-      (append '(("\\.n3\\'" . n3-mode)
-                ("\\.owl\\'" . n3-mode)) auto-mode-alist))
-
-;; YAML mode
-(autoload 'yaml-mode "yaml-mode" "Major mode for YAML files" t)
-(setq auto-mode-alist
-      (append '(("\\.yml\\'" . yaml-mode)
-                ("\\.yaml\\'" . yaml-mode)) auto-mode-alist))
-
-;; Go mode
-(autoload 'go-mode "go-mode" "Major mode for the Go programming language" t)
-(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+;; Python shell
+(defun py3-shell ()
+  (interactive)
+  (run-python "/usr/bin/env python3" nil 0))

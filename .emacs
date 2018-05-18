@@ -243,6 +243,9 @@ Remember comments, info, and docs
   `C-h r s emacs lisp RET RET m documentation RET s tips RET RET`
    can use `checkdoc-minor-mode'
 
+You can always go back to the `normal-mode'
+ to reset the local variables and major mode of a buffer
+
 TODO:
  experiment with
   tramp

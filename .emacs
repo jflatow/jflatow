@@ -26,6 +26,7 @@
       '(
         idomenu        ;; better completions
         js2-mode       ;; enhanced `js-mode'
+        magit          ;; git porecelain
         nodejs-repl    ;; js shell
         org            ;; organize yourself
         restclient     ;; mind-blowing inline http requests
@@ -185,6 +186,10 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;  but use an old fashioned keybinding for now XXX
 (global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
 
+;; Suggested bindings from `C-h i m Magit m Getting Started`
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
 
 ;;; Help
 
@@ -251,7 +256,6 @@ TODO:
   tramp
   request.el
   use-package
-  magit
   mail
   epa for encryption/decryption (builtin, with epg)
    https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources

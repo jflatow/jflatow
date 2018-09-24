@@ -13,6 +13,9 @@
   (normal-top-level-add-subdirs-to-load-path)
   (byte-recompile-directory default-directory 0))
 
+;; Recompile elisp whenever I save
+(require 'auto-recomp)
+
 ;; Package archives
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -29,17 +32,25 @@
         magit          ;; git porecelain
         nodejs-repl    ;; js shell
         org            ;; organize yourself
+        request        ;; normalized http request library
         restclient     ;; mind-blowing inline http requests
         skewer-mode    ;; send stuff to the browser via a server
+        smex           ;; smarter `M-x`
         ))
 
 ;; Make sure selected packages are installed
 (package-install-selected-packages)
 
+;; Declare things that are missing during compilation
+(eval-when-compile
+  (require 'css-mode))
+
 
 ;;; Org bootstrap
-;;   the convention is to use form feeds to separate/begin sections
-;;  Use `C-x [` and `C-x ]` to scroll through pages
+;;   ^
+;;    the convention is to use form feeds to separate/begin sections
+;;    use `C-x [` and `C-x ]` to scroll through pages
+(require 'org)
 (setq org-startup-folded t)
 (setq org-startup-indented t)
 (setq org-hide-leading-stars t)
@@ -75,6 +86,10 @@
 (setq ido-create-new-buffer 'always)
 (setq ido-ignore-extensions t)
 
+;; Smex is Ido for commands
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+
 ;; Save my history
 (savehist-mode t)
 
@@ -99,6 +114,9 @@
 
 ;; Always show that ugly trailing whitespace
 (setq-default show-trailing-whitespace t)
+
+;; ABD
+(setq-default debug-on-error t)
 
 ;; No tabs
 (setq-default indent-tabs-mode nil)
@@ -128,14 +146,8 @@
 (setq js2-strict-inconsistent-return-warning nil)
 
 ;; JS2 mode hooks, including for shell scripts
-(add-to-list 'auto-mode-alist '("\\.js\\|.mjs\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
 (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-
-;; CSS mode prefs
-(setq cssm-indent-level 4)
-(setq cssm-mirror-mode nil)
-(setq cssm-newline-before-closing-bracket t)
-(setq cssm-indent-function #'cssm-c-style-indenter)
 
 ;; Skewer mode hooks
 (add-hook 'js2-mode-hook 'skewer-mode)
@@ -239,7 +251,10 @@ For some stuff, `eshell' is pretty awesome
  can just redirect to a buffer `ls >>> #<mybuf>`
   but not a good idea for data pipes
    as everything passes through interpreter
-    otherwise use `M-!` or `shell'
+    otherwise use one of:
+     `\\[shell-command]` `shell-command'
+     `\\[shell-command-on-region]` `shell-command-on-region'
+     `\\[shell]` `shell'
 
 Remember comments, info, and docs
  `\\[comment-dwim]` `comment-dwim'

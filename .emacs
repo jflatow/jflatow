@@ -39,18 +39,17 @@
         ))
 
 ;; Make sure selected packages are installed
+(unless (boundp 'package--initialized)
+  (package-initialize t))
+(unless package-archive-contents
+  (package-refresh-contents))
 (package-install-selected-packages)
-
-;; Declare things that are missing during compilation
-(eval-when-compile
-  (require 'css-mode))
 
 
 ;;; Org bootstrap
 ;;   ^
 ;;    the convention is to use form feeds to separate/begin sections
 ;;    use `C-x [` and `C-x ]` to scroll through pages
-(require 'org)
 (setq org-startup-folded t)
 (setq org-startup-indented t)
 (setq org-hide-leading-stars t)

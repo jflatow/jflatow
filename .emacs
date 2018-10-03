@@ -84,6 +84,7 @@
 (setq ido-use-filename-at-point 'guess)
 (setq ido-create-new-buffer 'always)
 (setq ido-ignore-extensions t)
+(setq ido-auto-merge-delay-time 9)
 
 ;; Smex is Ido for commands
 (smex-initialize)
@@ -148,6 +149,15 @@
 (add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
 (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 
+;; Node args
+(setq nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await"))
+
+;; CSS mode prefs
+(setq cssm-indent-level 4)
+(setq cssm-mirror-mode nil)
+(setq cssm-newline-before-closing-bracket t)
+(setq cssm-indent-function #'cssm-c-style-indenter)
+
 ;; Skewer mode hooks
 (add-hook 'js2-mode-hook 'skewer-mode)
 (add-hook 'css-mode-hook 'skewer-css-mode)
@@ -208,10 +218,7 @@ Repeated invocations toggle between the two most recently open buffers."
   "Sometimes you might need a refresher.
 
 These docs are meant to be a self-documenting help
- probably accessible by some shortcut (TODO)
-  just a permanent bookmark here
-   so you can edit and read comments
-    source of this file ought be set on install
+ this file is accessible via a persistent bookmark
 
 Replication is good
  this is fundamental to emacs/lisp/fsf/gnu

@@ -9,11 +9,12 @@ mkdir -p ~/.bin
 cp -rf .bin ~
 
 cp .emacs ~
-mkdir -p ~/.emacs.d/lisp
+mkdir -p .emacs.d/lisp ~/.emacs.d/lisp
 cp -rf .emacs.d/lisp ~/.emacs.d
+ln -sf ~/Dropbox/Bookmarks/emacs ~/.emacs.d/bookmarks
 
 cp .profile ~
-ln -sf $HOME/.profile $HOME/.bashrc
+ln -sf ~/.profile ~/.bashrc
 
 mkdir -p ~/.subversion
 cp .subversion/config ~/.subversion/

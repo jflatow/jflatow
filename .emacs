@@ -163,6 +163,17 @@
 (add-hook 'css-mode-hook 'skewer-css-mode)
 (add-hook 'html-mode-hook 'skewer-html-mode)
 
+;; Go mode prefs
+(defun my-go-mode ()
+  (setq-default tab-width 4)
+  (define-key go-mode-map (kbd "C-c C-c") 'go-run-buffer)
+  (define-key go-mode-map (kbd "C-c C-d") 'godoc)
+  (define-key go-mode-map (kbd "C-c C-f") 'gofmt)
+  (define-key go-mode-map (kbd "C-c 8") 'godef-jump)
+  (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window)
+  )
+(add-hook 'go-mode-hook 'my-go-mode)
+
 
 ;;; Shortcut commands
 
@@ -172,6 +183,12 @@
   "Run a simple bash shell in an `ansi-term'."
   (interactive)
   (ansi-term "/bin/bash"))
+
+;; Go
+
+(defun go-run-buffer()
+  (interactive)
+  (shell-command (concat "go run " (buffer-name))))
 
 ;; Python and Python3 shells
 

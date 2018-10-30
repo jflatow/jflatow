@@ -1,7 +1,9 @@
 # force system-wide profile (for non-interactive logins)
 . /etc/profile
 
-export PATH=~/.bin:$PATH
+export GOROOT=/usr/local/src/lang/Go/go
+export GOPATH=/usr/local/src/lang/Go/go-workspace
+export PATH=~/.bin:$PATH:$GOROOT/bin:$GOPATH/bin
 
 export CLICOLOR=cons25
 export EDITOR=emacs

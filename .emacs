@@ -164,7 +164,7 @@
   (setq consult-project-root-function
         (lambda ()
           (when-let (project (project-current))
-            (car (project-roots project))))))
+            (car (project-root project))))))
 
 ;; Virtual right-clicking
 ;;  more tips: https://karthinks.com/software/fifteen-ways-to-use-embark/
@@ -228,25 +228,6 @@
 (use-package forge
   :after magit)
 
-;; Enhanced `js-mode'
-(use-package js2-mode
-  :defer t
-  :init
-  ;; JS2 mode hooks, including for shell scripts
-  (add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
-  (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-
-  :config
-  (setq js2-basic-offset 2
-        js2-strict-missing-semi-warning nil
-        js2-strict-inconsistent-return-warning nil))
-
-;; JS shell
-(use-package nodejs-repl
-  :defer t
-  :config
-  (setq nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await")))
-
 ;; Organize yourself
 (use-package org
   :init
@@ -290,6 +271,34 @@
 ;;  TODO: begging for snippets
 (use-package restclient :defer t)
 
+;; Enhanced `js-mode'
+(use-package js2-mode
+  :defer t
+  :init
+  ;; JS2 mode hooks, including for shell scripts
+  (add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
+  (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+
+  :config
+  (setq js2-basic-offset 2
+        js2-strict-missing-semi-warning nil
+        js2-strict-inconsistent-return-warning nil))
+
+;; TypeScript
+(use-package typescript-mode
+  :defer t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
+  :config
+  (set-variable 'typescript-indent-level 2))
+
+;; JS shell
+(use-package nodejs-repl
+  :defer t
+  :config
+  (set-variable 'nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await"))
+  (set-variable 'nodejs-repl-use-global "true"))
+
 ;; Send stuff to the browser via a server
 ;;  TODO: latest version seems to be broken
 (use-package skewer-mode
@@ -300,12 +309,28 @@
 ;; Sequence diagrams
 (use-package uml-mode :defer t)
 
+;; Solidity contracts
+(use-package solidity-mode
+  :defer t
+  :config
+  (setq c-basic-offset 4))
+
+;; Go lang
+(use-package go-mode
+  :defer t
+  :config
+  (setq-default tab-width 4)
+  (define-key go-mode-map (kbd "C-c C-c") 'go-run-buffer)
+  (define-key go-mode-map (kbd "C-c C-d") 'godoc)
+  (define-key go-mode-map (kbd "C-c C-f") 'gofmt)
+  (define-key go-mode-map (kbd "C-c 8") 'godef-jump)
+  (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window))
+
 
 ;;; Global minor modes
 
 (define-globalized-minor-mode global-goto-address-mode goto-address-mode
-  (lambda () (goto-address-mode t)))
-
+  (lambda () (goto-address-mode t)) :group 'mine)
 
 (define-minor-mode sensitive-mode
   "For sensitive files like password lists.
@@ -314,12 +339,10 @@ It disables backup creation and auto saving.
 With no argument, this command toggles the mode.
 Non-null prefix argument turns on the mode.
 Null prefix argument turns off the mode."
-  ;; The initial value.
-  nil
   ;; The indicator for the mode line.
-  " Sensitive"
+  :lighter " Sensitive"
   ;; The minor mode bindings.
-  nil
+  :after-hook
   (if (symbol-value sensitive-mode)
       (progn
 	;; disable backups
@@ -357,9 +380,7 @@ Null prefix argument turns off the mode."
   (global-goto-address-mode t)
 
   ;; Don't forget to mark gpg files as sensitive
-  (setq auto-mode-alist
-        (append '(("\\.gpg$" . sensitive-mode))
-                auto-mode-alist)))
+  (add-to-list 'auto-mode-alist '("\\.gpg$" . sensitive-mode)))
 (jflatow-minors)
 
 
@@ -470,6 +491,12 @@ Repeated invocations toggle between the two most recently open buffers."
   (interactive)
   (ansi-term "/bin/bash"))
 
+;; Go
+
+(defun go-run-buffer()
+  (interactive)
+  (shell-command (concat "go run " (buffer-name))))
+
 ;; Python and Python3 shells
 
 (defun py-shell ()
@@ -488,6 +515,15 @@ NB: this and `py3-shell' currently share the same buffer,
 NB: shares buffer with `py-shell'"
   (interactive)
   (run-python "/usr/bin/env python3" nil 0))
+
+
+;;; Encryption
+
+;; Tips from:
+;;  https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+(setq auth-source-debug t)
+(setq auth-sources
+      '((:source "~/.authinfo.gpg")))
 
 
 ;;; Help

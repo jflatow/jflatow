@@ -27,11 +27,13 @@
 ;;  use `d x` on top of package line to delete
 (setq package-selected-packages
       '(
+        company        ;; complete anything
         idomenu        ;; better completions
         js2-mode       ;; enhanced `js-mode'
         magit          ;; git porecelain
         nodejs-repl    ;; js shell
         org            ;; organize yourself
+        ob-http        ;; org-babel + restclient
         request        ;; normalized http request library
         restclient     ;; mind-blowing inline http requests
         skewer-mode    ;; send stuff to the browser via a server
@@ -65,6 +67,14 @@
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c l") 'org-store-link))
 
+;; Load babel languages
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (http . t)
+   (js . t)
+   (python . t)))
+
 
 ;;; Global minor modes
 
@@ -77,7 +87,7 @@
 ;;    can also be used to kill buffers while searching elsewhere
 ;;   use `C-SPC` to restrict matches and then search them iteratively
 ;;   use `ido-completing-read' with "..." to borrow ido functionality
-;;  should be using `imenu' (`M-.` to `xref-find-definition' a symbol)
+;;  should be using `imenu'
 ;;   use `idomenu' to jump around using `ido'
 (ido-mode t)
 (setq ido-enable-flex-matching t)
@@ -233,6 +243,10 @@ Understand the logic behind key bindings
  `C-h m` to discover useful commands in current mode
  `C-h w` where-is command shows the bindings for command
 
+Use `xref'
+ `M-.` to `xref-find-definitions' a symbol
+ `M-,` to `xref-pop-marker-stack' and go back to where search began
+
 Use keyboard macros
  https://www.emacswiki.org/emacs/KeyboardMacros
   `\\[kmacro-start-macro-or-insert-counter]` `kmacro-start-macro-or-insert-counter'
@@ -268,6 +282,9 @@ Remember comments, info, and docs
  doc tips in the manual:
   `C-h r s emacs lisp RET RET m documentation RET s tips RET RET`
    can use `checkdoc-minor-mode'
+
+Org pays dividends, remember `org-info'
+  `\\[org-capture]` `org-capture' with template
 
 You can always go back to the `normal-mode'
  to reset the local variables and major mode of a buffer

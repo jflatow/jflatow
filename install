@@ -9,6 +9,7 @@ mkdir -p ~/.bin
 cp -rf .bin ~
 
 cp .emacs ~
+cp .gnus ~
 mkdir -p .emacs.d/lisp ~/.emacs.d/lisp
 cp -rf .emacs.d/lisp ~/.emacs.d
 ln -sf ~/Dropbox/Bookmarks/emacs ~/.emacs.d/bookmarks

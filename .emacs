@@ -30,6 +30,7 @@
         idomenu        ;; better completions
         js2-mode       ;; enhanced `js-mode'
         magit          ;; git porecelain
+        magithub       ;; github interface
         nodejs-repl    ;; js shell
         org            ;; organize yourself
         request        ;; normalized http request library
@@ -173,6 +174,7 @@
   (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window)
   )
 (add-hook 'go-mode-hook 'my-go-mode)
+(add-hook 'go-mode-hook 'gorepl-mode)
 
 
 ;;; Shortcut commands
@@ -227,6 +229,23 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Suggested bindings from `C-h i m Magit m Getting Started`
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
+
+;;; Encryption
+
+;; Tips from:
+;;  https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+(setq auth-source-debug t)
+(setq auth-sources
+      '((:source "~/.authinfo.gpg")))
+
+
+;;; Package configurations using `use-package'
+
+(use-package magithub
+  :after magit
+  :ensure t
+  :config (magithub-feature-autoinject t))
 
 
 ;;; Help
@@ -293,11 +312,8 @@ TODO:
  experiment with
   tramp
   request.el
-  use-package
+  ldap
   mail
-  epa for encryption/decryption (builtin, with epg)
-   https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
-    just edit .gpg files
   notebook setup
    org
    ein

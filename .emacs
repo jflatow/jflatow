@@ -30,12 +30,14 @@
         idomenu        ;; better completions
         js2-mode       ;; enhanced `js-mode'
         magit          ;; git porecelain
+        forge          ;; github interface
         nodejs-repl    ;; js shell
         org            ;; organize yourself
         request        ;; normalized http request library
         restclient     ;; mind-blowing inline http requests
         skewer-mode    ;; send stuff to the browser via a server
         smex           ;; smarter `M-x`
+        use-package    ;; rational package config
         ))
 
 ;; Make sure selected packages are installed
@@ -146,11 +148,12 @@
 (setq js2-strict-inconsistent-return-warning nil)
 
 ;; JS2 mode hooks, including for shell scripts
-(add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs" . js2-mode))
 (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 
 ;; Node args
-(setq nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await"))
+(set-variable 'nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await"))
+(set-variable 'nodejs-repl-use-global "true")
 
 ;; CSS mode prefs
 (setq cssm-indent-level 4)
@@ -170,9 +173,22 @@
   (define-key go-mode-map (kbd "C-c C-d") 'godoc)
   (define-key go-mode-map (kbd "C-c C-f") 'gofmt)
   (define-key go-mode-map (kbd "C-c 8") 'godef-jump)
-  (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window)
-  )
+  (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window))
 (add-hook 'go-mode-hook 'my-go-mode)
+
+;; Solidity mode prefs
+(defun my-solidity-mode ()
+  (setq c-basic-offset 4))
+(add-hook 'solidity-mode-hook 'my-solidity-mode)
+
+;; Certora
+(require 'cvl-mode)
+(require 'flycheck-cvl)
+
+;; TypeScript mode prefs
+(set-variable 'typescript-indent-level 2)
+(add-to-list 'auto-mode-alist '("\\.ts" . typescript-mode))
+
 
 
 ;;; Shortcut commands
@@ -227,6 +243,23 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; Suggested bindings from `C-h i m Magit m Getting Started`
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
+
+;;; Encryption
+
+;; Tips from:
+;;  https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+(setq auth-source-debug t)
+(setq auth-sources
+      '((:source "~/.authinfo.gpg")))
+
+
+;;; Package configurations using `use-package'
+
+(require 'use-package)
+(use-package forge
+ :after magit
+ :ensure t)
 
 
 ;;; Help
@@ -289,15 +322,15 @@ Remember comments, info, and docs
 You can always go back to the `normal-mode'
  to reset the local variables and major mode of a buffer
 
+If you are thinking to write some elisp
+ you'll want some libraries:
+  http://xenodium.com/modern-elisp-libraries/index.html
+
 TODO:
  experiment with
   tramp
   request.el
-  use-package
   mail
-  epa for encryption/decryption (builtin, with epg)
-   https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
-    just edit .gpg files
   notebook setup
    org
    ein

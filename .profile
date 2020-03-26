@@ -12,3 +12,5 @@ export FIGNORE=.svn
 PROMPT_COLOR='\[\e[32m\]'
 REMOVE_COLOR='\[\e[0m\]'
 export PS1="[${PROMPT_COLOR}\u@\h${REMOVE_COLOR} \W]\$ "
+
+export GREP_OPTIONS='--color=auto --exclude-dir=.git --exclude-dir=node_modules'

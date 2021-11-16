@@ -19,7 +19,7 @@
 ;; Package archives
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.milkbox.net/packages/")))
+        ("melpa" . "http://melpa.org/packages/")))
 
 ;; My selected packages
 ;;  use `i x` in `list-packages' to install a new one quickly

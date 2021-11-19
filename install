@@ -13,6 +13,7 @@ cp .gnus ~
 mkdir -p .emacs.d/lisp ~/.emacs.d/lisp
 cp -rf .emacs.d/lisp ~/.emacs.d
 ln -sf ~/Dropbox/Bookmarks/emacs ~/.emacs.d/bookmarks
+rm -f ~/.emacs.elc ~/.emacs.d/lisp/*.elc
 
 cp .profile ~
 ln -sf ~/.profile ~/.bashrc

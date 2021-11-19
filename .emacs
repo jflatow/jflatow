@@ -7,171 +7,400 @@
   (concat user-emacs-directory (convert-standard-filename standard-filename)))
 
 ;; Add `~/.emacs.d' and `~/.emacs.d/lisp' to the `load-path'
-;;  and recompile anything in `~/.emacs.d/lisp' on launch
 (let ((default-directory (user-dir "lisp")))
   (add-to-list 'load-path default-directory)
-  (normal-top-level-add-subdirs-to-load-path)
-  (byte-recompile-directory default-directory 0))
+  (normal-top-level-add-subdirs-to-load-path))
 
 ;; Recompile elisp whenever I save
 (require 'auto-recomp)
 
-;; Package archives
-(setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.org/packages/")))
-
-;; My selected packages
-;;  use `i x` in `list-packages' to install a new one quickly
-;;   if its really good, add it here
-;;  use `d x` on top of package line to delete
-(setq package-selected-packages
-      '(
-        company        ;; complete anything
-        idomenu        ;; better completions
-        js2-mode       ;; enhanced `js-mode'
-        magit          ;; git porecelain
-        nodejs-repl    ;; js shell
-        org            ;; organize yourself
-        ob-http        ;; org-babel + restclient
-        request        ;; normalized http request library
-        restclient     ;; mind-blowing inline http requests
-        skewer-mode    ;; send stuff to the browser via a server
-        smex           ;; smarter `M-x`
-        ))
-
-;; Make sure selected packages are installed
-(unless (boundp 'package--initialized)
-  (package-initialize t))
-(unless package-archive-contents
-  (package-refresh-contents))
-(package-install-selected-packages)
-
 
-;;; Org bootstrap
+;;; Packages
 ;;   ^
 ;;    the convention is to use form feeds to separate/begin sections
 ;;    use `C-x [` and `C-x ]` to scroll through pages
-(setq org-startup-folded t)
-(setq org-startup-indented t)
-(setq org-hide-leading-stars t)
-(setq org-return-follows-link t)
-(setq org-catch-invisible-edits 'show-and-error)
-(setq org-capture-templates
-      '(("t" "todo" entry (file org-default-notes-file)
-         "* TODO %?\n" :clock-in t :clock-resume t)))
-(setq org-default-notes-file "~/Dropbox/Notes/TODO.org")
-(setq org-agenda-files (list org-default-notes-file))
-(when (file-exists-p org-default-notes-file)
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (global-set-key (kbd "C-c l") 'org-store-link))
 
-;; Load babel languages
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (http . t)
-   (js . t)
-   (python . t)))
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+       (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+      (url-retrieve-synchronously
+        "https://raw.githubusercontent.com/jflatow/straight.el/develop/install.el"
+        'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Disable package.el in favor of straight.el
+(setq package-enable-at-startup nil)
+
+;; Install use-package using straight.el by default
+(straight-use-package 'use-package)
+(use-package straight
+  :custom
+  (straight-check-for-modifications (check-on-save find-when-checking))
+  (straight-use-package-by-default t))
+
+;; Complete anything
+;;  TODO: configure me?
+(use-package company :defer t)
+
+;; Better help
+(use-package helpful :defer t)
+
+;; Richer minibuffer annotations
+(use-package marginalia
+  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
+  :config
+  (marginalia-mode))
+
+;; Better incremental searching
+(use-package ctrlf
+  :config
+  (ctrlf-mode))
+
+;; Better incremental narrowing
+(use-package selectrum
+  :bind ("C-x C-z". 'selectrum-repeat)
+  :config
+  (selectrum-mode)
+  (setq selectrum-show-indices t
+        selectrum-max-window-height 15
+        selectrum-fix-vertical-window-height t))
+
+;; Predictable, efficient sorting and filtering algorithm
+(use-package selectrum-prescient
+  :after selectrum
+  :config
+  (selectrum-prescient-mode)
+  (prescient-persist-mode +1))
+
+;; Practical, visual commands based on `completing-read'
+(use-package consult
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c b" . consult-bookmark)
+         ("C-c h" . consult-history)
+         ("C-c M" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line (also `M-g M-g`)
+         ("M-g o" . consult-outline)
+         ("M-g O" . consult-org-heading)
+         ("M-g A" . consult-org-agenda)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s f" . consult-find)                  ;; TODO: use `args | pattern`
+         ("M-s F" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)            ;; BUG: results can overflow minibuf
+         ("M-s m" . consult-multi-occur)           ;; based on `completing-read-multiple'
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI. You may want to also
+  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  ;; The :init configuration is always executed (not lazy)
+  :init
+
+  ;; Improve register previews.
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Replace `completing-read-multiple' with an enhanced version.
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+
+  ;; Other variables and modes in the :config section, after loading the package
+  :config
+
+  ;; If preview is 'any, any key triggers the preview.
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+   :preview-key (kbd "M-."))
+
+  ;; Narrowing means filtering on the candidate group in consult.
+  ;; Install the prefix key and enable narrowing help in the minibuffer.
+  (setq consult-narrow-key "<")
+  (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
+
+  ;; Configure project root directoryies
+  (setq consult-project-root-function
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project))))))
+
+;; Magical git porcelain
+;;  `C-c g l` to view log for active file or buffer region
+;;   more tips: https://emacsredux.com/blog/2020/12/10/essential-magit-file-commands/
+(use-package magit
+  :bind (("C-x g" . 'magit-status)
+         ("C-x M-g" . 'magit-dispatch)
+         ("C-c g" . 'magit-file-dispatch)))
+
+;; Git forge integration
+(use-package forge
+  :after magit)
+
+;; Enhanced `js-mode'
+(use-package js2-mode
+  :defer t
+  :init
+  ;; JS2 mode hooks, including for shell scripts
+  (add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
+  (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+
+  :config
+  (setq js2-basic-offset 2
+        js2-strict-missing-semi-warning nil
+        js2-strict-inconsistent-return-warning nil))
+
+;; JS shell
+(use-package nodejs-repl
+  :defer t
+  :config
+  (setq nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await")))
+
+;; Organize yourself
+(use-package org
+  :init
+  (setq org-replace-disputed-keys t)
+
+  :config
+  (setq org-startup-folded t
+        org-startup-indented t
+        org-hide-leading-stars t
+        org-return-follows-link t
+        org-support-shift-select nil
+        org-catch-invisible-edits 'show-and-error)
+  (setq org-capture-templates
+        '(("t" "todo" entry (file org-default-notes-file)
+           "* TODO %?\n" :clock-in t :clock-resume t)))
+  (setq org-default-notes-file "~/Dropbox/Notes/TODO.org")
+  (setq org-agenda-files (list org-default-notes-file))
+  (when (file-exists-p org-default-notes-file)
+    (global-set-key (kbd "C-c a") 'org-agenda)
+    (global-set-key (kbd "C-c c") 'org-capture)
+    (global-set-key (kbd "C-c l") 'org-store-link)))
+
+;; org-babel + restclient
+(use-package ob-http
+  :config
+  ;; Load babel languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (http . t)
+     (js . t)
+     (python . t))))
+
+;; Mind-blowing inline http requests
+;;  TODO: begging for snippets
+(use-package restclient :defer t)
+
+;; Send stuff to the browser via a server
+;;  TODO: latest version seems to be broken
+(use-package skewer-mode
+  :defer t
+  :init
+  (skewer-setup))
+
+;; Sequence diagrams
+(use-package uml-mode :defer t)
 
 
 ;;; Global minor modes
 
-;; Apparently Ido is amazing, tips from:
-;;  https://www.emacswiki.org/emacs/InteractivelyDoThings
-;;  https://www.masteringemacs.org/article/introduction-to-ido-mode
-;;   remember `C-f` after `C-x C-f` is good for creating files
-;;    or `C-j` to select current input
-;;   quickly delete files using `C-k` during search
-;;    can also be used to kill buffers while searching elsewhere
-;;   use `C-SPC` to restrict matches and then search them iteratively
-;;   use `ido-completing-read' with "..." to borrow ido functionality
-;;  should be using `imenu'
-;;   use `idomenu' to jump around using `ido'
-(ido-mode t)
-(setq ido-enable-flex-matching t)
-(setq ido-use-filename-at-point 'guess)
-(setq ido-create-new-buffer 'always)
-(setq ido-ignore-extensions t)
-(setq ido-auto-merge-delay-time 9)
-
-;; Smex is Ido for commands
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-
-;; Save my history
-(savehist-mode t)
-
-;; Highlight region and overwrite it when I type
-(transient-mark-mode t)
-(delete-selection-mode nil)
-(show-paren-mode t)
-
-;; Links should always be default
-;;  `C-c RET' opens
-;;   which you can discover via `C-h .'
 (define-globalized-minor-mode global-goto-address-mode goto-address-mode
   (lambda () (goto-address-mode t)))
-(global-goto-address-mode t)
+
+
+(define-minor-mode sensitive-mode
+  "For sensitive files like password lists.
+It disables backup creation and auto saving.
+
+With no argument, this command toggles the mode.
+Non-null prefix argument turns on the mode.
+Null prefix argument turns off the mode."
+  ;; The initial value.
+  nil
+  ;; The indicator for the mode line.
+  " Sensitive"
+  ;; The minor mode bindings.
+  nil
+  (if (symbol-value sensitive-mode)
+      (progn
+	;; disable backups
+	(set (make-local-variable 'backup-inhibited) t)
+	;; disable auto-save
+	(if auto-save-default
+	    (auto-save-mode -1)))
+    ;resort to default value of backup-inhibited
+    (kill-local-variable 'backup-inhibited)
+    ;resort to default auto save setting
+    (if auto-save-default
+	(auto-save-mode 1))))
+
+(defun jflatow-minors ()
+  "Set my minor modes."
+  (interactive)
+
+  ;; Save my history
+  (savehist-mode t)
+
+  ;; Highlight region and overwrite it when I type
+  (transient-mark-mode t)
+  (delete-selection-mode nil)
+  (show-paren-mode t)
+
+  ;; Tab bar history
+  (tab-bar-history-mode t)
+
+  ;; Winners record window configuration changes
+  (winner-mode t)
+
+  ;; Links should always be default
+  ;;  `C-c RET' opens
+  ;;   which you can discover via `C-h .'
+  (global-goto-address-mode t)
+
+  ;; Don't forget to mark gpg files as sensitive
+  (setq auto-mode-alist
+        (append '(("\\.gpg$" . sensitive-mode))
+                auto-mode-alist)))
+(jflatow-minors)
 
 
-;;; Preference variables, one-offs, and hooks
-;;   oh my
+;;; Random preferences for builtins
 
-;; No splash
-(setq inhibit-splash-screen t)
+(defun jflatow-vars ()
+  "Set my preference vars."
+  (interactive)
 
-;; Always show that ugly trailing whitespace
-(setq-default show-trailing-whitespace t)
+  ;; No splash
+  (setq inhibit-splash-screen t)
 
-;; ABD
-(setq-default debug-on-error t)
+  ;; Always show that ugly trailing whitespace
+  (setq-default show-trailing-whitespace t)
 
-;; No tabs
-(setq-default indent-tabs-mode nil)
+  ;; ABD
+  (setq-default debug-on-error t)
 
-;; Show column numbers
-(setq-default column-number-mode t)
+  ;; No tabs
+  (setq-default indent-tabs-mode nil)
 
-;; Don't forget how to `widen'
-(put 'narrow-to-region 'disabled nil)
+  ;; Show column numbers
+  (setq-default column-number-mode t)
 
-;; Lines is lines
-(setq truncate-partial-width-windows t)
-(setq mode-require-final-newline nil)
+  ;; Don't forget how to `widen'
+  (put 'narrow-to-region 'disabled nil)
 
-;; Always show those ugly carriage returns
-(setq inhibit-eol-conversion t)
+  ;; Lines is lines
+  (setq truncate-partial-width-windows t)
+  (setq mode-require-final-newline nil)
 
-;; Preferred indentation for switch statements in cc-mode
-(c-set-offset 'case-label '+)
+  ;; Always show those ugly carriage returns
+  (setq inhibit-eol-conversion t)
 
-;; JavaScript indentation
-(setq js-indent-level 2)
+  ;; Save bookmarks as soon as they are created
+  (setq bookmark-save-flag 1)
 
-;; JS2 mode prefs
-(setq js2-indent-level 2)
-(setq js2-strict-missing-semi-warning nil)
-(setq js2-strict-inconsistent-return-warning nil)
+  ;; Preferred indentation for switch statements in cc-mode
+  (c-set-offset 'case-label '+)
 
-;; JS2 mode hooks, including for shell scripts
-(add-to-list 'auto-mode-alist '("\\.js\\|\\.mjs\\'" . js2-mode))
-(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+  ;; Tab bar preferences
+  (setq tab-bar-close-button-show 'selected
+        tab-bar-new-button-show nil
+        tab-bar-select-tab-modifiers '(control) ;; BUG C-<#> broken on mac
+        tab-bar-tab-hints nil)
 
-;; Node args
-(setq nodejs-repl-arguments '("--experimental-modules" "--experimental-repl-await"))
+  ;; Clarify tabs a little
+  (set-face-attribute 'tab-bar-tab nil ;; all tabs
+                      :background "#" :foreground "black" :box nil)
+  (set-face-attribute 'tab-bar-tab-inactive nil ;; inactive tabs
+                      :background "gray" :foreground "black" :box nil))
+(jflatow-vars)
 
-;; CSS mode prefs
-(setq cssm-indent-level 4)
-(setq cssm-mirror-mode nil)
-(setq cssm-newline-before-closing-bracket t)
-(setq cssm-indent-function #'cssm-c-style-indenter)
+
+;;; Shortcut keystrokes
 
-;; Skewer mode hooks
-(add-hook 'js2-mode-hook 'skewer-mode)
-(add-hook 'css-mode-hook 'skewer-css-mode)
-(add-hook 'html-mode-hook 'skewer-html-mode)
+;; Nice idea for quickly going back faster than `C-x b RET':
+;;  http://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(defun jflatow-keys ()
+  "Set my global keys."
+  (interactive)
+  ;; Re-map key translation for option-arrow keys on Mac
+  (define-key input-decode-map (kbd "ESC ESC O C") (kbd "M-<right>"))
+  (define-key input-decode-map (kbd "ESC ESC O D") (kbd "M-<left>"))
+
+  ;; Key chords could be interesting to experiment with
+  ;;  but use some old fashioned keybinding for now (TODO)
+
+  ;; Multi occur by buffer pattern
+  (global-set-key (kbd "C-c m") 'multi-occur-in-matching-buffers)
+
+  ;; Back and forth through windows
+  (global-set-key (kbd "C-c o") 'previous-window-any-frame)
+
+  ;; Back and forth through windows
+  (global-set-key (kbd "C-c o") 'previous-window-any-frame)
+
+  ;; Use helpful instead of builtin help
+  ;;  <PREFIX KEY> C-h lets you explore prefix key maps
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+
+  ;; Install tab selection helpers
+  (global-set-key (kbd "C-<left>") 'tab-bar-switch-to-prev-tab)
+  (global-set-key (kbd "C-<right>") 'tab-bar-switch-to-next-tab)
+
+  ;; Install the window movement helpers
+  (windmove-default-keybindings))
+(jflatow-keys)
 
 
 ;;; Shortcut commands
@@ -203,25 +432,6 @@ NB: shares buffer with `py-shell'"
   (run-python "/usr/bin/env python3" nil 0))
 
 
-;;; Shortcut keystrokes
-
-;; Nice idea for quickly going back faster than `C-x b RET':
-;;  http://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
-(defun switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-;; Key chords could be interesting to experiment with
-;;  but use an old fashioned keybinding for now XXX
-(global-set-key (kbd "C-c b") 'switch-to-previous-buffer)
-
-;; Suggested bindings from `C-h i m Magit m Getting Started`
-(global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
-
-
 ;;; Help
 
 (defun jflatow-help ()
@@ -235,7 +445,20 @@ Replication is good
 
 Use `M-TAB` for `completion-at-point' in buffer
  in modes/points that support completion
-  you might want to try `ido-at-point'
+
+Also, emacs has tabs and `tab-bar-mode'
+ they are named (session) persistent window configurations
+  `C-x t 2` new tab
+  `C-x t o` other tab
+  `C-x t 0` close tab
+
+Don't forget about
+ `M-A` to cycle `marginalia'
+ `M-a`, `M-e` `forward-sentence' and `backward-sentence'
+ `M-p`, `M-n`, `M-r` are generally useful for minibuffer history
+ `M-w` even better than `copy-region-as-kill'
+ `M-DEL` to `backward-kill-word'
+ `M--` negate argument to invert command (often backwards)
 
 Understand the logic behind key bindings
  `C-c` commands are part of the `mode-specific-map'
@@ -246,6 +469,10 @@ Understand the logic behind key bindings
 Use `xref'
  `M-.` to `xref-find-definitions' a symbol
  `M-,` to `xref-pop-marker-stack' and go back to where search began
+
+Use bookmarks & registers, mark & point
+ `C-x r C-h` for a refresher on bookmarks & registers
+ `C-x C-x` to `exchange-point-and-mark' and visualize them
 
 Use keyboard macros
  https://www.emacswiki.org/emacs/KeyboardMacros
@@ -289,21 +516,34 @@ Org pays dividends, remember `org-info'
 You can always go back to the `normal-mode'
  to reset the local variables and major mode of a buffer
 
+To test out big changes you can create a fake user dir and do:
+ `HOME=. emacs --debug-init`
+
 TODO:
  experiment with
   tramp
-  request.el
-  use-package
-  mail
-  epa for encryption/decryption (builtin, with epg)
-   https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
-    just edit .gpg files
+    https://github.com/raxod502/selectrum
+     supposedly tramp works out of the box on selectrum?
   notebook setup
    org
    ein
+  start using snippets
+   e.g. https://github.com/magnars/.emacs.d/tree/master/snippets
+  bunch of cool ideas, like the dude with quick-calc wrapper
+   https://www.reddit.com/r/emacs/comments/l51ocx/what_is_the_most_useful_part_of_your_emacs_config/
 
  learn his window setup:
   http://www.howardism.org/Technical/Emacs/new-window-manager.html
+
+ notes on mail/gnus
+ notes for epa for encryption/decryption (builtin, with epg)
+  https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+   tl;dr: just edit .gpg files
+
+ improve register notes:
+  `C-x r w <reg>` save window config
+  `C-x r j <reg>` load window config
+  `C-x r C-h` of course
 "
   (interactive)
   (describe-function 'jflatow-help))

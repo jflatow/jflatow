@@ -1,3 +1,5 @@
+;;; Genesis
+
 ;; Who am I?
 (setq user-full-name "Jared Flatow")
 (setq user-mail-address "jared@convex.io")
@@ -41,8 +43,10 @@
 (straight-use-package 'use-package)
 (use-package straight
   :custom
-  (straight-check-for-modifications (check-on-save find-when-checking))
   (straight-use-package-by-default t))
+
+;; Enable hiding mode line lighters
+(use-package diminish)
 
 ;; Complete anything
 ;;  TODO: configure me?
@@ -87,9 +91,9 @@
          ("C-c k" . consult-kmacro)
          ;; C-x bindings (ctl-x-map)
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x B" . consult-buffer)
+         ("C-x 4 B" . consult-buffer-other-window)
+         ("C-x 5 B" . consult-buffer-other-frame)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings (goto-map)
@@ -119,11 +123,6 @@
          ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
          ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
          ("M-s L" . consult-line-multi))           ;; needed by consult-line to detect isearch
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI. You may want to also
-  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
 
   ;; The :init configuration is always executed (not lazy)
   :init
@@ -166,6 +165,56 @@
         (lambda ()
           (when-let (project (project-current))
             (car (project-roots project))))))
+
+;; Virtual right-clicking
+;;  more tips: https://karthinks.com/software/fifteen-ways-to-use-embark/
+(use-package embark
+  :bind (("M-s RET" . embark-act-noquit)
+         ("M-S RET" . embark-act)
+         ("M-\"" . embark-dwim)
+         ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings
+
+  :config
+  (defun embark-act-noquit ()
+    "Run action but don't quit the minibuffer afterwards."
+    (interactive)
+    (let ((embark-quit-after-action nil))
+      (embark-act))))
+
+;; Embark + Consult
+;;  note: this one seems problematic
+;;   never got `consult-preview-at-point' working
+(use-package embark-consult
+  :after (embark consult))
+
+;; Keymap reminders
+(use-package which-key
+  :config
+  (which-key-mode)
+  :diminish which-key-mode)
+
+;; Popup management
+(use-package popper
+  :init
+  ;; First install a keymap where `not-modified' already is
+  (define-key global-map (kbd "M-~") (make-sparse-keymap))
+
+  ;; Tell popper what to consider popup buffers by default
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          helpful-mode
+          compilation-mode))
+
+  :bind (("M-~ RET" . popper-toggle-type)
+         ("M-~ `" . popper-toggle-latest)
+         ("M-`" . popper-cycle))
+
+  :config
+  (popper-mode)
+  (popper-echo-mode))
 
 ;; Magical git porcelain
 ;;  `C-c g l` to view log for active file or buffer region
@@ -220,8 +269,13 @@
     (global-set-key (kbd "C-c c") 'org-capture)
     (global-set-key (kbd "C-c l") 'org-store-link)))
 
+;; org ascii plots
+(use-package orgtbl-ascii-plot
+  :after org)
+
 ;; org-babel + restclient
 (use-package ob-http
+  :after org
   :config
   ;; Load babel languages
   (org-babel-do-load-languages
@@ -229,7 +283,8 @@
    '((emacs-lisp . t)
      (http . t)
      (js . t)
-     (python . t))))
+     (python . t)
+     (shell . t))))
 
 ;; Mind-blowing inline http requests
 ;;  TODO: begging for snippets
@@ -331,6 +386,9 @@ Null prefix argument turns off the mode."
 
   ;; Don't forget how to `widen'
   (put 'narrow-to-region 'disabled nil)
+
+  ;; Only ever confirm with a single key
+  (fset 'yes-or-no-p 'y-or-n-p)
 
   ;; Lines is lines
   (setq truncate-partial-width-windows t)
@@ -472,6 +530,8 @@ Use `xref'
 
 Use bookmarks & registers, mark & point
  `C-x r C-h` for a refresher on bookmarks & registers
+ `C-x r w <reg>` save window config
+ `C-x r j <reg>` load window config
  `C-x C-x` to `exchange-point-and-mark' and visualize them
 
 Use keyboard macros
@@ -524,9 +584,6 @@ TODO:
   tramp
     https://github.com/raxod502/selectrum
      supposedly tramp works out of the box on selectrum?
-  notebook setup
-   org
-   ein
   start using snippets
    e.g. https://github.com/magnars/.emacs.d/tree/master/snippets
   bunch of cool ideas, like the dude with quick-calc wrapper
@@ -539,11 +596,10 @@ TODO:
  notes for epa for encryption/decryption (builtin, with epg)
   https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
    tl;dr: just edit .gpg files
+    and add sensitive mode
 
- improve register notes:
-  `C-x r w <reg>` save window config
-  `C-x r j <reg>` load window config
-  `C-x r C-h` of course
+ add function(s) to configure/connect erc
+  https://www.reddit.com/r/emacs/comments/8ml6na/tip_how_to_make_erc_fun_to_use/
 "
   (interactive)
   (describe-function 'jflatow-help))

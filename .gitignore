@@ -1,3 +1,4 @@
 *~
 *.elc
+.ssh/config
 .DS_Store

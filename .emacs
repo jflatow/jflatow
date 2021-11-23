@@ -233,11 +233,23 @@
   :init
   (setq org-replace-disputed-keys t)
 
+  :bind (:map org-mode-map
+         ("C-c C-x m" . org-insert-heading-respect-content)
+         ("C-c C-x M" . org-insert-todo-heading-respect-content)
+         ("C-d <up>" . org-shiftup)
+         ("C-d <down>" . org-shiftdown)
+         ("C-d <left>" . org-shiftleft)
+         ("C-d <right>" . org-shiftright))
+
   :config
-  (setq org-startup-folded t
+  (setq org-startup-folded nil
         org-startup-indented t
         org-hide-leading-stars t
+        org-log-done 'note
         org-return-follows-link t
+        org-cycle-emulate-tab nil
+        org-special-ctrl-a/e t
+        org-special-ctrl-k t
         org-support-shift-select nil
         org-catch-invisible-edits 'show-and-error)
   (setq org-capture-templates
@@ -434,7 +446,16 @@ Null prefix argument turns off the mode."
   (set-face-attribute 'tab-bar-tab nil ;; all tabs
                       :background "#" :foreground "black" :box nil)
   (set-face-attribute 'tab-bar-tab-inactive nil ;; inactive tabs
-                      :background "gray" :foreground "black" :box nil))
+                      :background "gray" :foreground "black" :box nil)
+
+  ;; Filter internet relay chat noise
+  (setq erc-hide-list '("JOIN" "PART" "QUIT"))
+
+  ;; Encryption and auth sources
+  (setq auth-source-debug t)
+  (setq auth-sources
+        '((:source "~/.authinfo.gpg")))
+  (setq epg-pinentry-mode 'loopback))
 (jflatow-vars)
 
 
@@ -468,7 +489,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (global-set-key (kbd "C-c o") 'previous-window-any-frame)
 
   ;; Use helpful instead of builtin help
-  ;;  <PREFIX KEY> C-h lets you explore prefix key maps
+  ;;  <PREFIX KEY> C-h lets you explore prefix keymaps
   (global-set-key (kbd "C-h f") #'helpful-callable)
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h k") #'helpful-key)
@@ -476,6 +497,10 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Install tab selection helpers
   (global-set-key (kbd "C-<left>") 'tab-bar-switch-to-prev-tab)
   (global-set-key (kbd "C-<right>") 'tab-bar-switch-to-next-tab)
+
+  ;; Move the default `C-d` binding, replace it with a keymap
+  (global-set-key (kbd "C-<delete>") 'delete-char)
+  (define-key global-map (kbd "C-d") (make-sparse-keymap))
 
   ;; Install the window movement helpers
   (windmove-default-keybindings))
@@ -515,15 +540,6 @@ NB: this and `py3-shell' currently share the same buffer,
 NB: shares buffer with `py-shell'"
   (interactive)
   (run-python "/usr/bin/env python3" nil 0))
-
-
-;;; Encryption
-
-;; Tips from:
-;;  https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
-(setq auth-source-debug t)
-(setq auth-sources
-      '((:source "~/.authinfo.gpg")))
 
 
 ;;; Help

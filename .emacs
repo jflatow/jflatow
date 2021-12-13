@@ -16,6 +16,9 @@
 ;; Recompile elisp whenever I save
 (require 'auto-recomp)
 
+;; Easy journaling
+(require 'journal)
+
 
 ;;; Packages
 ;;   ^
@@ -242,8 +245,31 @@
          ("C-d <right>" . org-shiftright))
 
   :config
+  (defun my-org-agenda-format-date-aligned (date)
+    "Format a DATE string for display in the daily/weekly agenda, or timeline.
+This function makes sure that dates are aligned for easy reading."
+    (require 'cal-iso)
+    (let* ((dayname (calendar-day-name date 1 nil))
+           (day (cadr date))
+           (day-of-week (calendar-day-of-week date))
+           (month (car date))
+           (monthname (calendar-month-name month 1))
+           (year (nth 2 date))
+           (iso-week (org-days-to-iso-week
+                      (calendar-absolute-from-gregorian date)))
+           (weekyear (cond ((and (= month 1) (>= iso-week 52))
+                            (1- year))
+                           ((and (= month 12) (<= iso-week 1))
+                            (1+ year))
+                           (t year)))
+           (weekstring (if (= day-of-week 1)
+                           (format " W%02d" iso-week)
+                         "")))
+      (format "%4d %s %2d %s%s" year monthname day dayname weekstring)))
+
   (setq org-startup-folded nil
         org-startup-indented t
+        org-archive-subtree-save-file-p t
         org-hide-leading-stars t
         org-log-done 'note
         org-return-follows-link t
@@ -254,13 +280,16 @@
         org-catch-invisible-edits 'show-and-error)
   (setq org-capture-templates
         '(("t" "todo" entry (file org-default-notes-file)
-           "* TODO %?\n" :clock-in t :clock-resume t)))
+           "* TODO %?\n:PROPERTIES:\n:CREATED: %T\n:END:")))
   (setq org-default-notes-file "~/Dropbox/Notes/TODO.org")
   (setq org-agenda-files (list org-default-notes-file))
+  (setq org-agenda-format-date 'my-org-agenda-format-date-aligned)
   (when (file-exists-p org-default-notes-file)
     (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key (kbd "C-c c") 'org-capture)
-    (global-set-key (kbd "C-c l") 'org-store-link)))
+    (global-set-key (kbd "C-c l") 'org-store-link)
+    (global-set-key (kbd "C-d `") 'org-cycle-agenda-files)
+    (global-set-key (kbd "C-d TAB") 'org-switchb)))
 
 ;; org ascii plots
 (use-package orgtbl-ascii-plot
@@ -282,6 +311,9 @@
 ;; Mind-blowing inline http requests
 ;;  TODO: begging for snippets
 (use-package restclient :defer t)
+
+;; Websocket library
+(use-package websocket :defer t)
 
 ;; Enhanced `js-mode'
 (use-package js2-mode
@@ -337,6 +369,9 @@
   (define-key go-mode-map (kbd "C-c C-f") 'gofmt)
   (define-key go-mode-map (kbd "C-c 8") 'godef-jump)
   (define-key go-mode-map (kbd "C-u C-c 8") 'godef-jump-other-window))
+
+;; Some news
+(use-package nnhackernews)
 
 
 ;;; Global minor modes
@@ -488,6 +523,9 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Back and forth through windows
   (global-set-key (kbd "C-c o") 'previous-window-any-frame)
 
+  ;; Instant `journal-open'
+  (global-set-key (kbd "C-c j") 'journal-open)
+
   ;; Use helpful instead of builtin help
   ;;  <PREFIX KEY> C-h lets you explore prefix keymaps
   (global-set-key (kbd "C-h f") #'helpful-callable)
@@ -623,7 +661,14 @@ Remember comments, info, and docs
    can use `checkdoc-minor-mode'
 
 Org pays dividends, remember `org-info'
+ capture todos
   `\\[org-capture]` `org-capture' with template
+ add/remove agenda files on the fly with
+  `\\[org-agenda-file-to-front]` `org-agenda-file-to-front'
+  `\\[org-remove-file]` org-remove-file'
+ jump around with
+  `\\[org-cycle-agenda-files]` `org-cycle-agenda-files'
+  `\\[org-switchb]` `org-switchb'
 
 You can always go back to the `normal-mode'
  to reset the local variables and major mode of a buffer
@@ -631,11 +676,19 @@ You can always go back to the `normal-mode'
 To test out big changes you can create a fake user dir and do:
  `HOME=. emacs --debug-init`
 
+There's a `speedbar'
+ and appointments (i.e. `appt-activate')
+
+TRAMP is amazing and it works out of the box
+ https://www.gnu.org/software/tramp
+  especially with selectrum, just start typing `C-x C-f /scp:`
+
 TODO:
  experiment with
-  tramp
-    https://github.com/raxod502/selectrum
-     supposedly tramp works out of the box on selectrum?
+  tramp over Docker
+   https://willschenk.com/articles/2020/tramp_tricks/
+    can be chained together with other methods
+
   start using snippets
    e.g. https://github.com/magnars/.emacs.d/tree/master/snippets
   bunch of cool ideas, like the dude with quick-calc wrapper

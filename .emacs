@@ -167,7 +167,7 @@
   (setq consult-project-root-function
         (lambda ()
           (when-let (project (project-current))
-            (car (project-root project))))))
+            (project-root project)))))
 
 ;; Virtual right-clicking
 ;;  more tips: https://karthinks.com/software/fifteen-ways-to-use-embark/
@@ -315,6 +315,9 @@ This function makes sure that dates are aligned for easy reading."
 ;; Websocket library
 (use-package websocket :defer t)
 
+;; Structured editing
+(use-package paredit)
+
 ;; Enhanced `js-mode'
 (use-package js2-mode
   :defer t
@@ -327,6 +330,24 @@ This function makes sure that dates are aligned for easy reading."
   (setq js2-basic-offset 2
         js2-strict-missing-semi-warning nil
         js2-strict-inconsistent-return-warning nil))
+
+;; Elixir mode
+(use-package elixir-mode :defer t)
+
+;; Elixir environment
+(use-package alchemist
+  :after elixir-mode
+  :bind (:map alchemist-mode-map
+         ("M-TAB" . alchemist-company))
+  :hook
+  (elixir-mode . alchemist-mode)
+  (alchemist-mode . company-mode))
+
+;; Rust
+(use-package rust-mode :defer t
+  :bind (:map rust-mode-map
+         ("C-x C-e" . rust-run)
+         ("C-x C-t" . rust-test)))
 
 ;; TypeScript
 (use-package typescript-mode
@@ -473,7 +494,6 @@ Null prefix argument turns off the mode."
 
   ;; Tab bar preferences
   (setq tab-bar-close-button-show 'selected
-        tab-bar-new-button-show nil
         tab-bar-select-tab-modifiers '(control) ;; BUG C-<#> broken on mac
         tab-bar-tab-hints nil)
 

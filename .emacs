@@ -70,20 +70,22 @@
   (ctrlf-mode))
 
 ;; Better incremental narrowing
-(use-package selectrum
-  :bind ("C-x C-z". 'selectrum-repeat)
+(use-package vertico
   :config
-  (selectrum-mode)
-  (setq selectrum-show-indices t
-        selectrum-max-window-height 15
-        selectrum-fix-vertical-window-height t))
+  (vertico-mode))
 
 ;; Predictable, efficient sorting and filtering algorithm
-(use-package selectrum-prescient
-  :after selectrum
+(use-package prescient
+  :straight (:host github :repo "radian-software/prescient.el" :files ("prescient.el"))
   :config
-  (selectrum-prescient-mode)
   (prescient-persist-mode +1))
+
+;; Connect to vertico (awkward...)
+(use-package vertico-prescient
+  :after vertico prescient
+  :straight (:host github :repo "radian-software/prescient.el" :files ("vertico-prescient.el"))
+  :config
+  (vertico-prescient-mode))
 
 ;; Practical, visual commands based on `completing-read'
 (use-package consult
@@ -267,6 +269,7 @@ This function makes sure that dates are aligned for easy reading."
                          "")))
       (format "%4d %s %2d %s%s" year monthname day dayname weekstring)))
 
+  (require 'ox-md)
   (setq org-startup-folded nil
         org-startup-indented t
         org-archive-subtree-save-file-p t
@@ -393,6 +396,12 @@ This function makes sure that dates are aligned for easy reading."
 
 ;; Some news
 (use-package nnhackernews)
+
+;; ChatGPT (experimental)
+(use-package chatgpt-shell
+  :straight (:host github :repo "xenodium/chatgpt-shell" :files ("*.el"))
+  :init
+  (setq chatgpt-shell-openai-key "sk-xxx"))
 
 
 ;;; Global minor modes
@@ -702,6 +711,8 @@ There's a `speedbar'
 TRAMP is amazing and it works out of the box
  https://www.gnu.org/software/tramp
   especially with selectrum, just start typing `C-x C-f /scp:`
+
+`C-u C-x =` info about char under cursor
 
 TODO:
  experiment with

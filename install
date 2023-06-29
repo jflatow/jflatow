@@ -18,7 +18,7 @@ rm -f ~/.emacs.elc ~/.emacs.d/lisp/*.elc
 cp .profile ~
 ln -sf ~/.profile ~/.bashrc
 
-cp .ssh/* ~/.ssh
+test -d .ssh && cp .ssh/* ~/.ssh
 
 mkdir -p ~/.subversion
 cp .subversion/config ~/.subversion/

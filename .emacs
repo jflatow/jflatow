@@ -406,9 +406,6 @@ This function makes sure that dates are aligned for easy reading."
 
 ;;; Global minor modes
 
-(define-globalized-minor-mode global-goto-address-mode goto-address-mode
-  (lambda () (goto-address-mode t)) :group 'mine)
-
 (define-minor-mode sensitive-mode
   "For sensitive files like password lists.
 It disables backup creation and auto saving.
@@ -448,6 +445,9 @@ Null prefix argument turns off the mode."
   ;; Tab bar history
   (tab-bar-history-mode t)
 
+  ;; No toolbars
+  (tool-bar-mode -1)
+
   ;; Winners record window configuration changes
   (winner-mode t)
 
@@ -455,6 +455,9 @@ Null prefix argument turns off the mode."
   ;;  `C-c RET' opens
   ;;   which you can discover via `C-h .'
   (global-goto-address-mode t)
+
+  ;; Disable goto-address-mode for webkit widgets
+  (add-hook 'xwidget-webkit-mode-hook (lambda () (goto-address-mode -1)))
 
   ;; Don't forget to mark gpg files as sensitive
   (add-to-list 'auto-mode-alist '("\\.gpg$" . sensitive-mode)))
@@ -568,6 +571,9 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Move the default `C-d` binding, replace it with a keymap
   (global-set-key (kbd "C-<delete>") 'delete-char)
   (define-key global-map (kbd "C-d") (make-sparse-keymap))
+
+  ;; Good ol' zoom
+  (global-set-key (kbd "C-s-z") #'toggle-frame-maximized)
 
   ;; Install the window movement helpers
   (windmove-default-keybindings))

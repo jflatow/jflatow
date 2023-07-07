@@ -13,4 +13,5 @@ elif [ -n "$ZSH_VERSION" ]; then
     PROMPT_COLOR='%F{green}'
     REMOVE_COLOR='%f'
     export PROMPT="[%{$PROMPT_COLOR%}%n@%m%{$REMOVE_COLOR%} %~]\$ "
+    export WORDCHARS="*?_-.[]~=&;!#$%^(){}<>"
 fi

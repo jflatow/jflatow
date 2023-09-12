@@ -53,7 +53,8 @@
 
 ;; Complete anything
 ;;  TODO: configure me?
-(use-package company :defer t)
+(use-package company
+  :defer t)
 
 ;; Better help
 ;;  <PREFIX KEY> C-h lets you explore prefix keymaps
@@ -230,12 +231,14 @@
 ;;  `C-c g l` to view log for active file or buffer region
 ;;   more tips: https://emacsredux.com/blog/2020/12/10/essential-magit-file-commands/
 (use-package magit
+  :defer t
   :bind (("C-x g" . 'magit-status)
          ("C-x M-g" . 'magit-dispatch)
          ("C-c g" . 'magit-file-dispatch)))
 
 ;; Git forge integration
 (use-package forge
+  :defer t
   :after magit)
 
 ;; Organize yourself
@@ -296,14 +299,24 @@ This function makes sure that dates are aligned for easy reading."
     (global-set-key (kbd "C-c c") 'org-capture)
     (global-set-key (kbd "C-c l") 'org-store-link)
     (global-set-key (kbd "C-d `") 'org-cycle-agenda-files)
-    (global-set-key (kbd "C-d TAB") 'org-switchb)))
+    (global-set-key (kbd "C-d TAB") 'org-switchb))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (js . t)
+     (python . t)
+     (shell . t)
+     (sqlite . t)
+     (sql . t))))
 
 ;; orgtbl ascii plots
 (use-package orgtbl-ascii-plot
+  :defer t
   :after org)
 
 ;; orgtbl aggregation functions
 (use-package orgtbl-aggregate
+  :defer t
   :after org
   :straight (:host github :repo "tbanel/orgaggregate"))
 
@@ -312,9 +325,7 @@ This function makes sure that dates are aligned for easy reading."
   :after org
   :config
   ;; Load babel languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((deno . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages '((deno . t)))
   ;; Formatting
   (add-to-list 'org-src-lang-modes '("deno" . typescript)))
 
@@ -323,23 +334,20 @@ This function makes sure that dates are aligned for easy reading."
   :after org
   :config
   ;; Load babel languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (http . t)
-     (js . t)
-     (python . t)
-     (shell . t))))
+  (org-babel-do-load-languages 'org-babel-load-languages '((http . t))))
 
 ;; Mind-blowing inline http requests
 ;;  TODO: begging for snippets
-(use-package restclient :defer t)
+(use-package restclient
+  :defer t)
 
 ;; Websocket library
-(use-package websocket :defer t)
+(use-package websocket
+  :defer t)
 
 ;; Structured editing
-(use-package paredit)
+(use-package paredit
+  :defer t)
 
 ;; Enhanced `js-mode'
 (use-package js2-mode
@@ -355,10 +363,12 @@ This function makes sure that dates are aligned for easy reading."
         js2-strict-inconsistent-return-warning nil))
 
 ;; Elixir mode
-(use-package elixir-mode :defer t)
+(use-package elixir-mode
+  :defer t)
 
 ;; Elixir environment
 (use-package alchemist
+  :defer t
   :after elixir-mode
   :bind (:map alchemist-mode-map
          ("M-TAB" . alchemist-company))
@@ -367,7 +377,8 @@ This function makes sure that dates are aligned for easy reading."
   (alchemist-mode . company-mode))
 
 ;; Rust
-(use-package rust-mode :defer t
+(use-package rust-mode
+  :defer t
   :bind (:map rust-mode-map
          ("C-x C-e" . rust-run)
          ("C-x C-t" . rust-test)))
@@ -395,7 +406,8 @@ This function makes sure that dates are aligned for easy reading."
   (skewer-setup))
 
 ;; Sequence diagrams
-(use-package uml-mode :defer t)
+(use-package uml-mode
+  :defer t)
 
 ;; Solidity contracts
 (use-package solidity-mode
@@ -416,11 +428,13 @@ This function makes sure that dates are aligned for easy reading."
   (setq-default tab-width 4))
 
 ;; Some news
-(use-package nnhackernews)
+(use-package nnhackernews
+  :defer t)
 
 ;; Chrome (experimental)
 (use-package chrome
-  :straight (:host github :repo "anticomputer/chrome.el"))
+  :straight (:host github :repo "anticomputer/chrome.el")
+  :defer t)
 
 ;; ChatGPT (experimental)
 (use-package chatgpt-shell
@@ -433,6 +447,7 @@ This function makes sure that dates are aligned for easy reading."
 ;; orgy (experimental)
 (use-package orgy
   :straight (:local-repo "~/Dropbox/Code/project/orgy")
+  :defer t
   :bind-keymap ("C-c i" . orgy-keys)
   :config
   (setq orgy-chatgpt-api-key (auth-secret :host "openai.com")))
@@ -440,4 +455,5 @@ This function makes sure that dates are aligned for easy reading."
 ;; vzi (experimental)
 (use-package vzi
   :straight (:host github :repo "jflatow/vzi.el" :protocol ssh)
+  :defer t
   :bind-keymap ("C-c v" . vzi-keys))

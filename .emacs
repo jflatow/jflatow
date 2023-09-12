@@ -279,8 +279,7 @@ This function makes sure that dates are aligned for easy reading."
         org-cycle-emulate-tab nil
         org-special-ctrl-a/e t
         org-special-ctrl-k t
-        org-support-shift-select nil
-        org-catch-invisible-edits 'show-and-error)
+        org-support-shift-select nil)
   (setq org-capture-templates
         '(("t" "todo" entry (file org-default-notes-file)
            "* TODO %?\n:PROPERTIES:\n:CREATED: %T\n:END:")))
@@ -297,6 +296,17 @@ This function makes sure that dates are aligned for easy reading."
 ;; org ascii plots
 (use-package orgtbl-ascii-plot
   :after org)
+
+;; org-babel + deno
+(use-package ob-deno
+  :after org
+  :config
+  ;; Load babel languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((deno . t)))
+  ;; Formatting
+  (add-to-list 'org-src-lang-modes '("deno" . typescript)))
 
 ;; org-babel + restclient
 (use-package ob-http
@@ -397,11 +407,29 @@ This function makes sure that dates are aligned for easy reading."
 ;; Some news
 (use-package nnhackernews)
 
+;; Chrome (experimental)
+(use-package chrome
+  :straight (:host github :repo "anticomputer/chrome.el"))
+
 ;; ChatGPT (experimental)
 (use-package chatgpt-shell
   :straight (:host github :repo "xenodium/chatgpt-shell" :files ("*.el"))
-  :init
-  (setq chatgpt-shell-openai-key "sk-xxx"))
+  :defer t
+  :config
+  (setq chatgpt-shell-openai-key (auth-secret :host "openai.com"))
+  (setq chatgpt-shell-model-version "gpt-4"))
+
+;; orgy (experimental)
+(use-package orgy
+  :straight (:local-repo "~/Dropbox/Code/project/orgy")
+  :bind-keymap ("C-c i" . orgy-keys)
+  :config
+  (setq orgy-chatgpt-api-key (auth-secret :host "openai.com")))
+
+;; vzi (experimental)
+(use-package vzi
+  :straight (:host github :repo "jflatow/vzi.el" :protocol ssh)
+  :bind-keymap ("C-c v" . vzi-keys))
 
 
 ;;; Global minor modes
@@ -546,12 +574,6 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; Multi occur by buffer pattern
   (global-set-key (kbd "C-c m") 'multi-occur-in-matching-buffers)
 
-  ;; Back and forth through windows
-  (global-set-key (kbd "C-c o") 'previous-window-any-frame)
-
-  ;; Back and forth through windows
-  (global-set-key (kbd "C-c o") 'previous-window-any-frame)
-
   ;; Instant `journal-open'
   (global-set-key (kbd "C-c j") 'journal-open)
 
@@ -570,11 +592,20 @@ Repeated invocations toggle between the two most recently open buffers."
   (define-key global-map (kbd "C-d") (make-sparse-keymap))
 
   ;; Install the window movement helpers
-  (windmove-default-keybindings))
+  (windmove-default-keybindings)
+
+  ;; Convenient copying
+  (global-set-key (kbd "C-c p") 'pbcopy-kill-ring-item))
 (jflatow-keys)
 
 
 ;;; Shortcut commands
+
+;; Auth secrets
+(defun auth-secret (&rest args)
+  "Retrieve the secret from the authinfo using ARGS as the search criteria."
+  (let ((secret (plist-get (car (apply 'auth-source-search args)) :secret)))
+    (if (functionp secret) (funcall secret) secret)))
 
 ;; Bash shell
 
@@ -607,6 +638,19 @@ NB: this and `py3-shell' currently share the same buffer,
 NB: shares buffer with `py-shell'"
   (interactive)
   (run-python "/usr/bin/env python3" nil 0))
+
+;; Convenient pbcopy
+
+(defun pbcopy-kill-ring-item (&optional arg)
+  "Copy the last kill ring item to the clipboard using `pbcopy`.
+With a prefix ARG, copy the nth previous kill ring item."
+  (interactive "P")
+  (let ((item (nth (or arg 0) kill-ring)))
+    (when item
+      (with-temp-buffer
+        (insert item)
+        (call-process-region (point-min) (point-max) "pbcopy"))
+      (message "Copied to clipboard: %s" item))))
 
 
 ;;; Help

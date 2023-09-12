@@ -1,7 +1,7 @@
 # force system-wide profile (for non-interactive logins)
 . /etc/profile
 
-export PATH=~/.bin:~/.cargo/bin:$PATH
+export PATH=~/.bin:~/.cargo/bin:~/.deno/bin:$PATH
 export CLICOLOR=cons25
 export EDITOR=emacs
 

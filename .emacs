@@ -400,8 +400,10 @@ This function makes sure that dates are aligned for easy reading."
 ;; ChatGPT (experimental)
 (use-package chatgpt-shell
   :straight (:host github :repo "xenodium/chatgpt-shell" :files ("*.el"))
-  :init
-  (setq chatgpt-shell-openai-key "sk-xxx"))
+  :defer t
+  :config
+  (setq chatgpt-shell-openai-key (auth-secret :host "openai.com"))
+  (setq chatgpt-shell-model-version "gpt-4"))
 
 
 ;;; Global minor modes
@@ -581,6 +583,12 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 ;;; Shortcut commands
+
+;; Auth secrets
+(defun auth-secret (&rest args)
+  "Retrieve the secret from the authinfo using ARGS as the search criteria."
+  (let ((secret (plist-get (car (apply 'auth-source-search args)) :secret)))
+    (if (functionp secret) (funcall secret) secret)))
 
 ;; Bash shell
 

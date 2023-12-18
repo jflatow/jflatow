@@ -196,6 +196,15 @@ Repeated invocations toggle between the two most recently open buffers."
   (interactive)
   (ansi-term "/bin/bash"))
 
+(defun export-shell-env (&optional var buf)
+  "Export an emacs environment variable into a shell process, by name."
+  (interactive "sVariable name: ")
+  (let ((buf (or buf (current-buffer)))
+        (val (getenv var)))
+    (comint-send-string
+     (get-buffer-process buf)
+     (format "export %s=%s\n" var val))))
+
 ;; Go
 
 (defun go-run-buffer()
